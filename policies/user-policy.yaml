@@ -1,0 +1,14 @@
+apiVersion: flowmesh.io/v1
+kind: RoutingPolicy
+metadata:
+  name: user-policy
+spec:
+  service: user-service
+  rules:
+    - if: latency_p99 > 150ms
+      action: shift_traffic
+      away_from: high_latency_pods
+      by: 20%
+    - if: error_rate > 3%
+      action: circuit_break
+      target: pod

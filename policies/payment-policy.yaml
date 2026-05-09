@@ -1,0 +1,17 @@
+apiVersion: flowmesh.io/v1
+kind: RoutingPolicy
+metadata:
+  name: payment-policy
+spec:
+  service: payment-service
+  rules:
+    - if: latency_p99 > 200ms
+      action: shift_traffic
+      away_from: high_latency_pods
+      by: 20%
+    - if: error_rate > 5%
+      action: circuit_break
+      target: pod
+    - if: cpu > 80%
+      action: reduce_weight
+      by: 30%

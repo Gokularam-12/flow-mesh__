@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flowmesh-control-plane
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: flowmesh-control-plane
+  template:
+    metadata:
+      labels:
+        app: flowmesh-control-plane
+    spec:
+      containers:
+      - name: flowmesh
+        image: flowmesh:latest
+        imagePullPolicy: Never
+        env:
+        - name: PROMETHEUS_ADDR
+          value: "http://prometheus:9090"
+        - name: POLICY_DIR
+          value: "/policies"
+        ports:
+        - containerPort: 18000
+          name: xds-grpc
+        - containerPort: 8081
+          name: rest-api
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: flowmesh-control-plane
+spec:
+  selector:
+    app: flowmesh-control-plane
+  ports:
+  - name: xds-grpc
+    port: 18000
+    targetPort: 18000
+  - name: rest-api
+    port: 8081
+    targetPort: 8081
